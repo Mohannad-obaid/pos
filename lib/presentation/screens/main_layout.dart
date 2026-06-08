@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pos/presentation/screens/products/products_list_screen.dart';
+import 'package:pos/presentation/screens/settings/settings_screen.dart';
 import '../../core/theme/app_colors.dart';
+import 'customers/customers_list_screen.dart';
 import 'home/home_screen.dart';
+import 'invoices/invoices_list_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -15,10 +19,10 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const Center(child: Text("العملاء")), // واجهة العملاء
-    const Center(child: Text("المنتجات")), // واجهة المنتجات
-    const Center(child: Text("الفواتير")), // واجهة الفواتير
-    const Center(child: Text("المزيد")), // واجهة الإعدادات
+    const CustomersListScreen(), //Center(child: Text("العملاء")), // واجهة العملاء
+    const ProductsListScreen(),  //Center(child: Text("المنتجات")), // واجهة المنتجات
+    const InvoicesListScreen(), //Center(child: Text("الفواتير")), // واجهة الفواتير
+    const SettingsScreen(), //Center(child: Text("المزيد")), // واجهة الإعدادات
   ];
 
   @override

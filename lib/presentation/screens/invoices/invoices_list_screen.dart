@@ -93,7 +93,7 @@ class InvoicesListScreen extends StatelessWidget {
   Widget _summaryCard(String title, String value, Color valueColor) {
     return Container(
       width: 120.w,
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(5.w),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12.r),
