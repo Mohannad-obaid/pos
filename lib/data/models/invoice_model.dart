@@ -2,8 +2,8 @@ import '../../core/enums/app_enums.dart';
 import 'cart_item_model.dart';
 
 class InvoiceModel {
-  final String id;
-  final String? customerId; // null إذا كانت المبيعات كاش لزبون غير مسجل
+  final int id;
+  final int? customerId; // null إذا كانت المبيعات كاش لزبون غير مسجل
   final String customerName;
   final DateTime date;
   final InvoiceStatus status;
@@ -24,8 +24,8 @@ class InvoiceModel {
 
   factory InvoiceModel.fromJson(Map<String, dynamic> json) {
     return InvoiceModel(
-      id: json['id'] ?? '',
-      customerId: json['customer_id'],
+      id: json['id'] as int,
+      customerId: json['customer_id'] as int?,
       customerName: json['customer_name'] ?? '',
       date: DateTime.parse(json['date']),
       status: InvoiceStatus.values.firstWhere(

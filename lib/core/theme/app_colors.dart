@@ -10,7 +10,7 @@ class AppColors {
   static const Color onPrimaryFixed = Color(0xFF001A3C);
 
   static const Color secondary = Color(0xFF006A61);
-  static const Color secondaryContainer = Color(0xFF86F2E4);
+  static const Color secondaryContainer = Color(0xFF004AC6);
   static const Color onSecondaryContainer = Color(0xFF002019);
 
   static const Color error = Color(0xFFBA1A1A);
@@ -30,4 +30,7 @@ class AppColors {
   static const Color onSurfaceVariant = Color(0xFF434655);
   static const Color outline = Color(0xFF737686);
   static const Color outlineVariant = Color(0xFFC3C6D7);
+
+  static const Color onSecondaryFixedVariant = Color(0xFF005049);
+
 }

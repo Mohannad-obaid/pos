@@ -1,5 +1,5 @@
 class ProductModel {
-  final String id;
+  final int id;
   final String name;
   final String category;
   final String barcode;
@@ -20,7 +20,7 @@ class ProductModel {
   bool get isAvailable => !trackStock || stockQuantity > 0;
 
   ProductModel copyWith({
-    String? id,
+    int? id,
     String? name,
     String? category,
     String? barcode,
@@ -41,7 +41,7 @@ class ProductModel {
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
-      id: json['id'] ?? '',
+      id: json['id'] as int,
       name: json['name'] ?? '',
       category: json['category'] ?? '',
       barcode: json['barcode'] ?? '',

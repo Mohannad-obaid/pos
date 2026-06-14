@@ -1,8 +1,8 @@
 import '../../core/enums/app_enums.dart';
 
 class PaymentModel {
-  final String id;
-  final String customerId;
+  final int id;
+  final int customerId;
   final String customerName;
   final double amount;
   final DateTime date;
@@ -21,8 +21,8 @@ class PaymentModel {
 
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
     return PaymentModel(
-      id: json['id'] ?? '',
-      customerId: json['customer_id'] ?? '',
+      id: json['id'] as int,
+      customerId: json['customer_id'] as int,
       customerName: json['customer_name'] ?? '',
       amount: (json['amount'] ?? 0.0).toDouble(),
       date: DateTime.parse(json['date']),

@@ -1,21 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pos/data/local/database.dart';
+import 'package:pos/providers/cart_provider.dart';
+import 'package:pos/providers/checkout_controller.dart';
+import 'package:pos/providers/repository_providers.dart';
+import '../../../config/routes/app_routes.dart';
+import '../../../config/routes/navigation_service.dart';
 import '../../../core/theme/app_colors.dart';
 
 enum PaymentMethod { cash, debt }
 
-class CheckoutScreen extends StatefulWidget {
+class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 
   @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
+  ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
+class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   PaymentMethod _selectedMethod = PaymentMethod.debt;
+  Customer? _selectedCustomer; // لتخزين الزبون المختار للدين
 
   @override
   Widget build(BuildContext context) {
+    // 1. مراقبة حالة عملية الدفع (للتحميل والأخطاء)
+    final checkoutState = ref.watch(checkoutControllerProvider);
+    final isLoading = checkoutState.isLoading;
+
+    // 2. الاستماع للنجاح أو الفشل عبر ref.listen
+    ref.listen(checkoutControllerProvider, (previous, next) {
+      if (next is AsyncData && next.value == null) {
+        // null تعني أن العملية نجحت بناءً على الكود الذي كتبناه
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تمت عملية الدفع بنجاح!'), backgroundColor: Colors.green),
+        );
+        NavigationService.navigateAndRemoveUntil(AppRoutes.dashboard); // العودة للرئيسية
+      } else if (next is AsyncError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('حدث خطأ: ${next.error}'), backgroundColor: Colors.red),
+        );
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: _buildAppBar(),
@@ -41,7 +68,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ),
           ),
-          _buildConfirmButton(),
+          _buildConfirmButton(isLoading),
         ],
       ),
     );
@@ -55,14 +82,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       title: Text('الدفع', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: AppColors.primary),
-        onPressed: () {},
+        onPressed: () => Navigator.pop(context),
       ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.more_vert, color: AppColors.onSurfaceVariant),
-          onPressed: () {},
-        ),
-      ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1.0),
         child: Container(color: AppColors.outlineVariant.withOpacity(0.5), height: 1.0),
@@ -71,6 +92,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildOrderSummary() {
+    // 3. قراءة إجمالي السلة وعدد العناصر
+    final totalAmount = ref.watch(cartTotalProvider);
+    final itemsCount = ref.watch(cartItemsCountProvider);
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -91,14 +116,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   color: AppColors.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12.r),
                 ),
-                child: Text('4 قطع', style: TextStyle(fontSize: 12.sp, color: AppColors.onSurfaceVariant)),
+                child: Text('$itemsCount قطع', style: TextStyle(fontSize: 12.sp, color: AppColors.onSurfaceVariant)),
               ),
             ],
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'كولا، خبز تنور، شيبس، عصير طبيعي...',
-            style: TextStyle(fontSize: 13.sp, color: AppColors.outline, height: 1.5),
           ),
           SizedBox(height: 16.h),
           Divider(color: AppColors.outlineVariant),
@@ -108,7 +128,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('الإجمالي', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: AppColors.onSurface)),
-              Text('₪ 30.00', style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold, color: AppColors.primary)),
+              Text('₪ ${totalAmount.toStringAsFixed(2)}', style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold, color: AppColors.primary)),
             ],
           ),
         ],
@@ -195,65 +215,47 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildDebtSection() {
+    // 4. جلب قائمة الزبائن لاختيارهم عند الدين
+    final customersAsync = ref.watch(customersListProvider);
+
     return Column(
       key: const ValueKey('debt'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('اختر الزبون', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.onSurfaceVariant)),
         SizedBox(height: 8.h),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(28.r),
-            border: Border.all(color: AppColors.outlineVariant),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20.r,
-                    backgroundColor: AppColors.primaryFixed,
-                    child: Icon(Icons.person, color: AppColors.primaryFixedDim),
-                  ),
-                  SizedBox(width: 12.w),
-                  Text('أحمد الحمدان', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
-                ],
-              ),
-              Icon(Icons.expand_more, color: AppColors.outline),
-            ],
-          ),
-        ),
-        SizedBox(height: 16.h),
-        Wrap(
-          spacing: 8.w,
-          runSpacing: 8.h,
-          children: [
-            _quickCustomerChip('ياسين'),
-            _quickCustomerChip('منى'),
-            _quickCustomerChip('سارة'),
-            ActionChip(
-              label: Text('+ زبون جديد', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 14.sp)),
-              backgroundColor: Colors.white,
-              side: const BorderSide(color: AppColors.primary),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-              onPressed: () {},
-            )
-          ],
+
+        customersAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Text('خطأ في جلب الزبائن', style: TextStyle(color: AppColors.error)),
+          data: (customers) {
+            if (customers.isEmpty) {
+              return Text('لا يوجد زبائن، قم بإضافة زبون أولاً.', style: TextStyle(color: AppColors.onSurfaceVariant));
+            }
+
+            // في تطبيق حقيقي يمكن استخدام Dropdown أو BottomSheet
+            // هنا نستخدم قائمة أفقية للسرعة والمحاكاة
+            return Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: customers.map((customer) {
+                final isSelected = _selectedCustomer?.id == customer.id;
+                return ChoiceChip(
+                  label: Text(customer.name, style: TextStyle(fontSize: 14.sp)),
+                  selected: isSelected,
+                  selectedColor: AppColors.primaryContainer.withOpacity(0.2),
+                  side: BorderSide(color: isSelected ? AppColors.primary : AppColors.outlineVariant),
+                  onSelected: (selected) {
+                    setState(() {
+                      _selectedCustomer = selected ? customer : null;
+                    });
+                  },
+                );
+              }).toList(),
+            );
+          },
         ),
       ],
-    );
-  }
-
-  Widget _quickCustomerChip(String name) {
-    return ActionChip(
-      label: Text(name, style: TextStyle(fontSize: 14.sp)),
-      backgroundColor: Colors.transparent,
-      side: BorderSide(color: AppColors.outlineVariant),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-      onPressed: () {},
     );
   }
 
@@ -274,31 +276,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             fillColor: Colors.white,
             contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: AppColors.outlineVariant)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: AppColors.outlineVariant)),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: AppColors.primary, width: 2)),
-          ),
-        ),
-        SizedBox(height: 16.h),
-        Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFF22C55E).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: const Color(0xFF22C55E).withValues(alpha: 0.2)),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('الباقي:', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF22C55E))),
-              Text('₪ 0.00', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: const Color(0xFF22C55E))),
-            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildConfirmButton() {
+  Widget _buildConfirmButton(bool isLoading) {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -308,14 +293,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       child: SafeArea(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF22C55E), // Custom Success Color
+            backgroundColor: const Color(0xFF22C55E),
             foregroundColor: Colors.white,
             minimumSize: Size(double.infinity, 56.h),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-            elevation: 4,
           ),
-          onPressed: () {},
-          child: Row(
+          onPressed: isLoading ? null : () async {
+            // التحقق من اختيار العميل في حالة الدين
+            if (_selectedMethod == PaymentMethod.debt && _selectedCustomer == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('الرجاء اختيار الزبون أولاً')),
+              );
+              return;
+            }
+
+            // 5. استدعاء الـ Controller لتنفيذ الدفع
+            await ref.read(checkoutControllerProvider.notifier).processCheckout(
+              isDebt: _selectedMethod == PaymentMethod.debt,
+              customerId: _selectedCustomer?.id, // يمرر null في حالة الكاش
+            );
+          },
+          child: isLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('تأكيد وإنهاء', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),

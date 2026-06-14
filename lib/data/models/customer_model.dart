@@ -1,7 +1,7 @@
 import '../../core/enums/app_enums.dart';
 
 class CustomerModel {
-  final String id;
+  final int id;
   final String name;
   final String phoneNumber;
   final double totalDebt;
@@ -19,7 +19,7 @@ class CustomerModel {
 
   // لإنشاء نسخة معدلة من الأوبجكت (مفيد جداً في إدارة الحالة مثل Bloc/Provider)
   CustomerModel copyWith({
-    String? id,
+    int? id,
     String? name,
     String? phoneNumber,
     double? totalDebt,
@@ -38,7 +38,7 @@ class CustomerModel {
 
   factory CustomerModel.fromJson(Map<String, dynamic> json) {
     return CustomerModel(
-      id: json['id'] ?? '',
+      id: json['id'] as int,
       name: json['name'] ?? '',
       phoneNumber: json['phone_number'] ?? '',
       totalDebt: (json['total_debt'] ?? 0.0).toDouble(),

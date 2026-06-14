@@ -34,15 +34,46 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_localizations:
     sdk: flutter
+    # التعامل مع قاعدة البيانات
+  drift: ^2.16.0
+  sqlite3_flutter_libs: ^0.5.0
+  path_provider: ^2.1.2
+
+  flutter_riverpod: ^2.5.1
+  hooks_riverpod: ^2.5.1 # اختياري، لكنه يسهل العمل مع الـ Controllers
+  riverpod_annotation: ^2.3.5 # لتوليد كود الـ Providers بسهولة
+  equatable: ^2.0.5 # لجعل المقارنة بين الـ Models سهلة
+
+
+  # التعامل مع الوقت والتاريخ (مهم جداً للـ POS)
+  intl: ^0.20.2
+
+    # دعم التصفح والـ Dependency Injection
+  get_it: ^7.6.7 # لربط الكلاسات ببعضها (DI)
+
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  mobile_scanner: ^7.2.0
+  shared_preferences: ^2.5.5
+  flutter_secure_storage: ^10.3.1
+  local_auth: ^3.0.1
+  google_sign_in: ^7.2.0
+  googleapis: ^16.0.0
+  workmanager: ^0.9.0+3
+  permission_handler: ^12.0.3
+  package_info_plus: ^10.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  # مولدات الكود لـ Drift
+  drift_dev: ^2.16.0
+  build_runner: ^2.4.8
+  riverpod_generator: ^2.4.0
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

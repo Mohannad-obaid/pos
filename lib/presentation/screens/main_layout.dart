@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pos/presentation/screens/products/products_list_screen.dart';
+import 'package:pos/presentation/screens/records/financial_records_screen.dart';
+import 'package:pos/presentation/screens/reports/reports_screen.dart';
 import 'package:pos/presentation/screens/settings/settings_screen.dart';
 import '../../core/theme/app_colors.dart';
 import 'customers/customers_list_screen.dart';
@@ -21,8 +23,10 @@ class _MainLayoutState extends State<MainLayout> {
     const HomeScreen(),
     const CustomersListScreen(), //Center(child: Text("العملاء")), // واجهة العملاء
     const ProductsListScreen(),  //Center(child: Text("المنتجات")), // واجهة المنتجات
-    const InvoicesListScreen(), //Center(child: Text("الفواتير")), // واجهة الفواتير
-    const SettingsScreen(), //Center(child: Text("المزيد")), // واجهة الإعدادات
+   // const InvoicesListScreen(), //Center(child: Text("الفواتير")), // واجهة الفواتير
+    const FinancialRecordsScreen(), //Center(child: Text("السجلات المالية")), // واجهة السجلات المالية
+    const ReportsScreen(), //Center(child: Text("التقارير")), // واجهة التقارير
+   // const SettingsScreen(), //Center(child: Text("المزيد")), // واجهة الإعدادات
   ];
 
   @override
@@ -50,8 +54,8 @@ class _MainLayoutState extends State<MainLayout> {
             _buildNavItem(Icons.home_filled, 'الرئيسية', 0),
             _buildNavItem(Icons.people_outline, 'العملاء', 1),
             _buildNavItem(Icons.inventory_2_outlined, 'المنتجات', 2),
-            _buildNavItem(Icons.receipt_long_outlined, 'الفواتير', 3),
-            _buildNavItem(Icons.more_horiz, 'المزيد', 4),
+            _buildNavItem(Icons.receipt_long_outlined, 'السجلات', 3),
+            _buildNavItem(Icons.bar_chart_outlined, 'التقارير', 4),
           ],
         ),
       ),
@@ -69,7 +73,7 @@ class _MainLayoutState extends State<MainLayout> {
         ),
         child: Icon(
           icon,
-          color: isSelected ? AppColors.secondaryContainer : AppColors.onSurfaceVariant,
+          color: isSelected ? AppColors.onPrimary : AppColors.onSurfaceVariant,
           size: 24.sp,
         ),
       ),
